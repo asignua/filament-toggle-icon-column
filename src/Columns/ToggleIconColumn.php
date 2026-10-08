@@ -183,6 +183,12 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
     {
         $ability = $this->evaluate($this->authorization);
 
+        // A closure is a gate: its bool is the decision (false denies, true allows), its string is the
+        // ability to check. Only the literal `->authorize(false)` switches the policy check off.
+        if ($this->authorization instanceof Closure && is_bool($ability)) {
+            return $ability;
+        }
+
         if ($ability === false) {
             return true;
         }

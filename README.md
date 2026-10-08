@@ -65,6 +65,8 @@ ToggleIconColumn::make('is_published')
 ->authorize()            // default: Gate `update` on the record, only when the model has a policy
 ->authorize('publish')   // another ability
 ->authorize(false)       // skip the policy check (core ToggleColumn behaviour)
+->authorize(fn (Task $record): bool => ! $record->is_locked)  // closure gate: false denies, true allows (the policy is not asked)
+->authorize(fn (): string => 'publish')                       // closure returning a string: the ability to check
 ```
 
 Core's editable columns only honour `disabled()`; this column also asks the policy, so a user who may not edit the record cannot
