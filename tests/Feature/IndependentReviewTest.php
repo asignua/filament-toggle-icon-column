@@ -98,6 +98,27 @@ class IndependentReviewTest extends TestCase
         $this->assertTrue($task->fresh()->is_done);
     }
 
+    /**
+     * FINDING (verifier): `authorize(Closure)` treats a closure that returns `false` as "skip the
+     * policy check", not "deny". Filament's own `authorize(bool|Closure)` (actions) is a boolean
+     * gate, so the natural `->authorize(fn (Task $record): bool => ! $record->is_locked)` turns
+     * every denial into an unchecked write.
+     */
+    public function test_bug_authorize_closure_returning_false_denies_the_write(): void
+    {
+        Gate::policy(Task::class, TaskPolicy::class);
+        $task = $this->task(['is_locked' => true]);
+
+        ReviewTable::$columns = fn (): array => [
+            ToggleIconColumn::make('is_done')->authorize(fn (Task $record): bool => !$record->is_locked),
+        ];
+
+        Livewire::test(ReviewTable::class)
+            ->call('updateTableColumnState', 'is_done', (string) $task->getKey(), true);
+
+        $this->assertFalse($task->fresh()->is_done, 'authorize(fn () => false) let the write through.');
+    }
+
     public function test_a_guest_cannot_toggle_a_record_with_a_policy(): void
     {
         Gate::policy(Task::class, TaskPolicy::class);
