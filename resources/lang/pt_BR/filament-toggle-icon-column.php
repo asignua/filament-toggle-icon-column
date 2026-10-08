@@ -6,5 +6,7 @@ return [
     'tooltip' => [
         'on' => 'Ativado. Clique para desativar.',
         'off' => 'Desativado. Clique para ativar.',
+        'on_readonly' => 'Ativado',
+        'off_readonly' => 'Desativado',
     ],
 ];

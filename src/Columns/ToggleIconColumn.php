@@ -9,6 +9,9 @@ use Closure;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Concerns\HasToggleColors;
 use Filament\Forms\Components\Concerns\HasToggleIcons;
+
+use function Filament\get_authorization_response;
+
 use Filament\Support\Components\Contracts\HasEmbeddedView;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\IconSize;
@@ -21,10 +24,13 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\Concerns\CanBeValidated;
 use Filament\Tables\Columns\Concerns\CanUpdateState;
 use Filament\Tables\Columns\Contracts\Editable;
+use Filament\Tables\Table;
 use Filament\Tables\View\Components\Columns\IconColumnComponent\IconComponent;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Js;
 
@@ -44,7 +50,10 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
     use HasToggleColors;
     use HasToggleIcons;
 
-    protected IconSize|Closure|null $size = null;
+    protected IconSize|string|Closure|null $size = null;
+
+    /** @var array<string>|Closure|string|null */
+    protected string|array|Closure|null $hoverColor = null;
 
     protected bool|Closure $hasHoverHint = true;
 
@@ -59,10 +68,15 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
         // The icon is the click target; a row-level URL/action must not fire with it.
         $this->disabledClick();
 
-        $this->rules(['boolean']);
+        // `required` rejects crafted null/'' input, which would otherwise be written as NULL.
+        $this->rules(['required', 'boolean']);
     }
 
-    public function size(IconSize|Closure|null $size): static
+    /**
+     * An {@see IconSize} or, as in archilex's column and core `IconColumn`, its string value
+     * (`xs`, `sm`, `md`, `lg`, `xl`, `2xl`).
+     */
+    public function size(IconSize|string|Closure|null $size): static
     {
         $this->size = $size;
 
@@ -73,7 +87,32 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
     {
         $size = $this->evaluate($this->size);
 
+        if (is_string($size)) {
+            $size = IconSize::tryFrom($size);
+        }
+
         return $size instanceof IconSize ? $size : IconSize::Large;
+    }
+
+    /**
+     * The colour of the previewed (hover/focus) icon. Defaults to the colour of the state the
+     * click would produce.
+     *
+     * @param array<string>|Closure|string|null $color
+     */
+    public function hoverColor(string|array|Closure|null $color): static
+    {
+        $this->hoverColor = $color;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string>|string|null
+     */
+    public function getHoverColor(): string|array|null
+    {
+        return $this->evaluate($this->hoverColor);
     }
 
     /**
@@ -125,7 +164,8 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
             return $tooltip;
         }
 
-        return __('filament-toggle-icon-column::filament-toggle-icon-column.tooltip.'.($state ? 'on' : 'off'));
+        // A cell that cannot be clicked must not say "click to ..."; it only reports the state.
+        return __('filament-toggle-icon-column::filament-toggle-icon-column.tooltip.'.($state ? 'on' : 'off').($this->isDisabled() ? '_readonly' : ''));
     }
 
     public function isDisabled(): bool
@@ -133,6 +173,12 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
         return parent::isDisabled() || !$this->isAuthorized();
     }
 
+    /**
+     * Asks the policy of EVERY record the write touches: the row, and for a relationship column
+     * (`user.is_active`) the related record, for a pivot column the pivot. Same semantics as
+     * Filament resources ({@see get_authorization_response()}), so the panel's
+     * `strictAuthorization()` is honoured and a policy without the method allows.
+     */
     public function isAuthorized(): bool
     {
         $ability = $this->evaluate($this->authorization);
@@ -147,17 +193,54 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
             return true;
         }
 
-        if (Gate::getPolicyFor($record) === null) {
-            return true;
-        }
-
-        $user = Filament::auth()->user();
-
-        if (!($user instanceof Authenticatable)) {
+        if (!(Filament::auth()->user() instanceof Authenticatable)) {
             return false;
         }
 
-        return Gate::forUser($user)->allows(is_string($ability) ? $ability : 'update', $record);
+        $ability = is_string($ability) ? $ability : 'update';
+
+        foreach ($this->getWrittenRecords($record) as $target) {
+            if (!get_authorization_response($ability, $target)->allowed()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array<int, Model>
+     */
+    protected function getWrittenRecords(Model $record): array
+    {
+        $records = [$record];
+
+        if ($this->hasRelationship($record)) {
+            $relationshipName = (string) $this->getRelationshipName($record);
+            $related = Arr::get($record->loadMissing($relationshipName), $relationshipName);
+
+            if ($related instanceof Model) {
+                $records[] = $related;
+            }
+
+            return $records;
+        }
+
+        $tableRelationship = $this->getTable()->getRelationship();
+
+        if (
+            ($tableRelationship instanceof BelongsToMany)
+            && in_array($this->getAttributeName($record), $tableRelationship->getPivotColumns(), true)
+        ) {
+            $pivot = $record->getRelationValue($tableRelationship->getPivotAccessor());
+
+            // A bare pivot has no policy; asking about it would only trip strict mode.
+            if (($pivot instanceof Model) && filled(Gate::getPolicyFor($pivot))) {
+                $records[] = $pivot;
+            }
+        }
+
+        return $records;
     }
 
     public function getOnColor(): ?string
@@ -197,14 +280,16 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
                     state: '.Js::from($state).',
                     disabled: '.Js::from($isDisabled).',
                     hint: '.Js::from($this->hasHoverHint()).',
+                    custom: '.Js::from($this->updateStateUsing !== null).',
                     error: undefined,
                     isLoading: false,
                     isHovered: false,
                     unsubscribeLivewireHook: null,
+                    get previewing() {
+                        return this.hint && this.isHovered && ! this.disabled && ! this.isLoading
+                    },
                     get showOn() {
-                        const preview = this.hint && this.isHovered && ! this.disabled && ! this.isLoading
-
-                        return preview ? ! this.state : this.state
+                        return this.previewing ? ! this.state : this.state
                     },
                     getServerState() {
                         if (! this.$refs.serverState) {
@@ -256,7 +341,11 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
 
                             this.error = response?.error ?? undefined
 
-                            if (this.error) {
+                            // The server answers null when it refused the write (disabled, denied, hidden,
+                            // record gone); only `updateStateUsing()` may legitimately return nothing.
+                            const refused = ! this.custom && (response === null || response === undefined)
+
+                            if (this.error || refused) {
                                 this.state = serverState
                             } else if (this.$refs.serverState) {
                                 this.$refs.serverState.value = this.state ? \'1\' : \'0\'
@@ -283,6 +372,9 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
                 'x-bind:aria-pressed' => 'state ? \'true\' : \'false\'',
                 'aria-disabled' => $isDisabled ? 'true' : null,
                 'aria-label' => $label,
+                // Inert while the table re-queries (sort, page, filter, search), as core ToggleColumn is.
+                'wire:loading.attr' => 'inert',
+                'wire:target' => implode(',', Table::LOADING_TARGETS),
                 'x-bind:aria-busy' => 'isLoading ? \'true\' : null',
                 'x-bind:aria-invalid' => 'error !== undefined ? \'true\' : null',
                 // `tabindex` is applied client-side on purpose: the cell may sit inside the record's
@@ -323,6 +415,28 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
             size: $size,
         )?->toHtml();
 
+        $hoverColor = $this->getHoverColor();
+
+        $previewIcon = static fn (mixed $icon, mixed $color): string => generate_icon_html(
+            $icon,
+            attributes: (new FilamentComponentAttributeBag)->color(IconComponent::class, $color),
+            size: $size,
+        )?->toHtml() ?? '';
+
+        // Without hoverColor() the previewed icon is just the opposite state's icon, so two spans do;
+        // with it, each state gets a second span that is shown only while previewed.
+        $variants = $hoverColor === null
+            ? [
+                ['show' => 'showOn', 'cloak' => !$state, 'html' => $onIcon],
+                ['show' => '! showOn', 'cloak' => $state, 'html' => $offIcon],
+            ]
+            : [
+                ['show' => 'showOn && ! previewing', 'cloak' => !$state, 'html' => $onIcon],
+                ['show' => 'showOn && previewing', 'cloak' => true, 'html' => $previewIcon($this->getOnIcon(), $hoverColor)],
+                ['show' => '! showOn && ! previewing', 'cloak' => $state, 'html' => $offIcon],
+                ['show' => '! showOn && previewing', 'cloak' => true, 'html' => $previewIcon($this->getOffIcon(), $hoverColor)],
+            ];
+
         ob_start(); ?>
 
         <div
@@ -332,19 +446,14 @@ class ToggleIconColumn extends Column implements Editable, HasEmbeddedView
             <input type="hidden" value="<?= $state ? 1 : 0 ?>" x-ref="serverState" />
 
             <div <?= $buttonAttributes->toHtml() ?>>
-                <span
-                    aria-hidden="true"
-                    x-show="showOn"
-                    x-bind:style="! state && showOn ? 'opacity: .55' : null"
-                    <?php if (!$state) { ?> x-cloak <?php } ?>
-                ><?= $onIcon ?></span>
-
-                <span
-                    aria-hidden="true"
-                    x-show="! showOn"
-                    x-bind:style="state && ! showOn ? 'opacity: .55' : null"
-                    <?php if ($state) { ?> x-cloak <?php } ?>
-                ><?= $offIcon ?></span>
+                <?php foreach ($variants as $variant) { ?>
+                    <span
+                        aria-hidden="true"
+                        x-show="<?= $variant['show'] ?>"
+                        x-bind:style="{ opacity: previewing ? '.55' : '' }"
+                        <?php if ($variant['cloak']) { ?> x-cloak <?php } ?>
+                    ><?= $variant['html'] ?></span>
+                <?php } ?>
             </div>
         </div>
 

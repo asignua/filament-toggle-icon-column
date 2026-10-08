@@ -27,8 +27,7 @@ use Workbench\App\Models\User;
 use Workbench\App\Policies\TaskPolicy;
 
 /**
- * Independent review tests. Tests prefixed `test_bug_` are EXPECTED TO FAIL on the reviewed
- * code: each one exposes a finding from the review (see the docblock on the test).
+ * Independent review tests: regression tests for the review findings (see the docblock on each test).
  */
 class IndependentReviewTest extends TestCase
 {
@@ -156,7 +155,7 @@ class IndependentReviewTest extends TestCase
      * record (Task), but the write goes to the RELATED record (User). A user who may update the
      * task but not the user flips the user's flag.
      */
-    public function test_bug_relationship_column_checks_the_policy_of_the_record_it_writes(): void
+    public function test_relationship_column_checks_the_policy_of_the_record_it_writes(): void
     {
         Gate::policy(Task::class, TaskPolicy::class);
         Gate::policy(User::class, DenyUpdateUserPolicy::class);
@@ -177,30 +176,33 @@ class IndependentReviewTest extends TestCase
      * `->strictAuthorization()` Filament treats a model without a policy as a configuration
      * error; the column silently treats it as "allowed" and writes.
      */
-    public function test_bug_strict_authorization_mode_is_not_honoured(): void
+    public function test_strict_authorization_mode_is_honoured(): void
     {
         Filament::getPanel('admin')->strictAuthorization();
-        $task = $this->task();
+        // Task has an auto-discovered policy in the workbench; User has none.
+        $user = User::factory()->create(['is_active' => false]);
 
-        ReviewTable::$columns = fn (): array => [ToggleIconColumn::make('is_done')];
+        ReviewTable::$query = static fn () => User::query()->whereKey($user->getKey());
+        ReviewTable::$columns = fn (): array => [ToggleIconColumn::make('is_active')];
 
         try {
             Livewire::test(ReviewTable::class)
-                ->call('updateTableColumnState', 'is_done', (string) $task->getKey(), true);
+                ->call('updateTableColumnState', 'is_active', (string) $user->getKey(), true);
         } catch (Throwable) {
             // A LogicException (Filament's own behaviour) is an acceptable outcome.
         } finally {
             Filament::getPanel('admin')->strictAuthorization(false);
+            ReviewTable::$query = null;
         }
 
-        $this->assertFalse($task->fresh()->is_done, 'Strict authorization: a model without a policy was written.');
+        $this->assertFalse($user->fresh()->is_active, 'Strict authorization: a model without a policy was written.');
     }
 
     /**
-     * Documents (README «Gotchas») the divergence from Filament: a policy that has no `update`
-     * method makes the column read-only, while Filament resources treat a missing method as allowed.
+     * Same semantics as Filament resources: a policy that has no `update` method allows the write
+     * (the column delegates to `get_authorization_response()`).
      */
-    public function test_a_policy_without_the_ability_makes_the_column_read_only(): void
+    public function test_a_policy_without_the_ability_allows_as_in_filament_resources(): void
     {
         Gate::policy(Task::class, ViewOnlyTaskPolicy::class);
         $task = $this->task();
@@ -210,7 +212,7 @@ class IndependentReviewTest extends TestCase
         Livewire::test(ReviewTable::class)
             ->call('updateTableColumnState', 'is_done', (string) $task->getKey(), true);
 
-        $this->assertFalse($task->fresh()->is_done);
+        $this->assertTrue($task->fresh()->is_done);
     }
 
     // ---------------------------------------------------------------- input handling
@@ -247,7 +249,7 @@ class IndependentReviewTest extends TestCase
      * NOT NULL boolean column that is an unhandled QueryException (HTTP 500); on a nullable column
      * the boolean silently becomes NULL — a third state the column cannot display.
      */
-    public function test_bug_a_null_input_neither_crashes_nor_writes(): void
+    public function test_a_null_input_neither_crashes_nor_writes(): void
     {
         $task = $this->task(['is_done' => true]);
 
@@ -334,7 +336,7 @@ class IndependentReviewTest extends TestCase
      * FINDING: `stateTooltip()` keeps saying "Click to disable/enable" on a cell that cannot be
      * clicked (disabled, or denied by the policy).
      */
-    public function test_bug_state_tooltip_does_not_invite_a_click_on_a_disabled_cell(): void
+    public function test_state_tooltip_does_not_invite_a_click_on_a_disabled_cell(): void
     {
         $this->task(['is_done' => true]);
 
@@ -351,7 +353,7 @@ class IndependentReviewTest extends TestCase
      * FINDING: archilex's `->size('xl')` (string sizes xs/sm/md/lg/xl) — and core IconColumn's
      * `size(IconSize|string)` — throw a TypeError here; migration code breaks.
      */
-    public function test_bug_size_accepts_the_archilex_string_sizes(): void
+    public function test_size_accepts_the_archilex_string_sizes(): void
     {
         try {
             $column = ToggleIconColumn::make('is_done')->size('xl'); // @phpstan-ignore argument.type (the point of the test)
@@ -366,7 +368,7 @@ class IndependentReviewTest extends TestCase
      * FINDING: archilex's `->hoverColor()` is not ported; existing v3 code calling it fails with
      * BadMethodCallException.
      */
-    public function test_bug_hover_color_from_archilex_is_available(): void
+    public function test_hover_color_from_archilex_is_available(): void
     {
         $this->assertTrue(method_exists(ToggleIconColumn::class, 'hoverColor'), 'ToggleIconColumn::hoverColor() is missing.');
     }

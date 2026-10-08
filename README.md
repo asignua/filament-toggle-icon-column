@@ -11,7 +11,7 @@ and, unlike the core editable columns, a model-policy check.
 
 ## Screenshots
 
-TODO: add images to `art/` (cover.jpg first) and reference them here.
+The column renders as a single clickable icon in the table cell (check-circle / x-circle by default); screenshots are added with the first release.
 
 
 ## Requirements
@@ -68,12 +68,16 @@ ToggleIconColumn::make('is_published')
 ```
 
 Core's editable columns only honour `disabled()`; this column also asks the policy, so a user who may not edit the record cannot
-flip it by crafting a Livewire call. A model without a policy stays editable, as in Filament resources.
+flip it by crafting a Livewire call. The policy of every record the write touches is asked: the row, the related record for a
+relationship column (`user.is_active`), and a pivot that has its own policy. Semantics are Filament's own
+(`get_authorization_response()`): a model without a policy stays editable, a policy without the method allows, and the panel's
+`strictAuthorization()` is honoured (it throws for a missing policy).
 
 ### Hover hint
 
 By default, hovering (or focusing) an enabled icon previews the state the click would produce: the opposite icon, dimmed.
-Turn it off with `->hoverHint(false)`. `->stateTooltip()` adds a translated tooltip ("Enabled. Click to disable.") when you set none.
+Turn it off with `->hoverHint(false)`; `->hoverColor('warning')` recolours the previewed icon. On a cell that cannot be clicked the
+state tooltip only reports the state. `->stateTooltip()` adds a translated tooltip ("Enabled. Click to disable.") when you set none.
 
 ### Accessibility
 
@@ -82,7 +86,7 @@ Enter and Space toggle it, and disabled icons leave the tab order.
 
 ## Configuration
 
-There is no config file; everything is a fluent setter on the column (see Usage). `size()`, `hoverHint()`, `authorize()` and
+There is no config file; everything is a fluent setter on the column (see Usage). `size()` (an `IconSize` or `'xs'`...`'2xl'`), `hoverColor()`, `hoverHint()`, `authorize()` and
 `stateTooltip()` are the additions over the core editable column API.
 
 ## Gotchas
@@ -91,7 +95,7 @@ There is no config file; everything is a fluent setter on the column (see Usage)
 - **Alpine CSP build** is not supported: the column's client logic is an inline `x-data` object.
 - **Row URL / record action.** Clicks on the icon never reach the row action (`disabledClick()` is on); the rest of the cell does.
 - **`updateStateUsing()` replaces the write**, including for JSON paths such as `settings.flag`; the default write handles those itself.
-- **Policy without `update`.** If your policy class lacks the ability, Laravel denies it; define it or use `->authorize(false)`.
+- **Policy without `update`.** As in Filament resources, a policy that lacks the method allows the write (deny it explicitly in the policy; strict mode throws instead).
 
 ## Translations
 
@@ -121,3 +125,9 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## License
 
 The MIT License (MIT). See [LICENSE.md](LICENSE.md).
+
+## Migrating from archilex/filament-toggle-icon-column
+
+`onIcon()`, `offIcon()`, `onColor()`, `offColor()`, `size('xl')` and `hoverColor()` keep their names. Saving follows Filament 5's
+editable-column contract (`updateStateUsing`, `beforeStateUpdated`, `afterStateUpdated`, `rules`). New here: `authorize()`,
+`hoverHint()`, `stateTooltip()`.
