@@ -1,7 +1,7 @@
 {
     "name": "asignua/filament-toggle-icon-column",
-    "description": "TODO: one-sentence description of Toggle Icon Column for Filament.",
-    "keywords": ["filament", "filament-plugin", "laravel"],
+    "description": "A clickable icon column that toggles a boolean in place for Filament 5 tables and relation managers: the successor of archilex/filament-toggle-icon-column.",
+    "keywords": ["filament", "filament-plugin", "laravel", "toggle", "icon", "table", "column"],
     "homepage": "https://github.com/asignua/filament-toggle-icon-column",
     "support": {
         "issues": "https://github.com/asignua/filament-toggle-icon-column/issues",

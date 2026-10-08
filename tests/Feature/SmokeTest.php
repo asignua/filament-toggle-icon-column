@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Asignua\FilamentToggleIconColumn\Tests\Feature;
 
-use Asignua\FilamentToggleIconColumn\ToggleIconColumnPlugin;
 use Asignua\FilamentToggleIconColumn\Tests\TestCase;
+use Asignua\FilamentToggleIconColumn\ToggleIconColumnPlugin;
 use Filament\Facades\Filament;
 
 class SmokeTest extends TestCase
@@ -25,6 +25,6 @@ class SmokeTest extends TestCase
 
     public function test_the_translations_are_loaded(): void
     {
-        $this->assertSame('Sample', __('filament-toggle-icon-column::filament-toggle-icon-column.sample'));
+        $this->assertSame('Enabled. Click to disable.', __('filament-toggle-icon-column::filament-toggle-icon-column.tooltip.on'));
     }
 }

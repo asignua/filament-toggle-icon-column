@@ -3,5 +3,8 @@
 declare(strict_types=1);
 
 return [
-    'sample' => 'Przykład',
+    'tooltip' => [
+        'on' => 'Włączone. Kliknij, aby wyłączyć.',
+        'off' => 'Wyłączone. Kliknij, aby włączyć.',
+    ],
 ];

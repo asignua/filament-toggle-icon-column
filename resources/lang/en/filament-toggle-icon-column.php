@@ -3,5 +3,8 @@
 declare(strict_types=1);
 
 return [
-    'sample' => 'Sample',
+    'tooltip' => [
+        'on' => 'Enabled. Click to disable.',
+        'off' => 'Disabled. Click to enable.',
+    ],
 ];

@@ -3,5 +3,8 @@
 declare(strict_types=1);
 
 return [
-    'sample' => 'Örnek',
+    'tooltip' => [
+        'on' => 'Etkin. Devre dışı bırakmak için tıklayın.',
+        'off' => 'Devre dışı. Etkinleştirmek için tıklayın.',
+    ],
 ];

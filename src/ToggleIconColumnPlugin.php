@@ -21,7 +21,7 @@ class ToggleIconColumnPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        // Register resources, pages, widgets, render hooks on the panel here.
+        // Nothing to register: the column is a plain class.
     }
 
     public function boot(Panel $panel): void
