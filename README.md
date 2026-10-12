@@ -1,5 +1,7 @@
 # Filament Toggle Icon Column
 
+<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/cover.jpg" alt="Filament Toggle Icon Column">
+
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-toggle-icon-column/tests.yml?branch=main&label=tests)](https://github.com/asignua/filament-toggle-icon-column/actions/workflows/tests.yml)
 
 A table column that is an icon you click: it flips a boolean attribute in place, with no switch and no page reload. The Filament 5
@@ -11,7 +13,15 @@ and, unlike the core editable columns, a model-policy check.
 
 ## Screenshots
 
-The column renders as a single clickable icon in the table cell (check-circle / x-circle by default); screenshots are added with the first release.
+The column renders as a single clickable icon in the table cell (check-circle / x-circle by default), in light and dark mode:
+
+![List](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/list.jpg)
+
+![List, dark mode](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/list-dark.jpg)
+
+Hovering an enabled icon previews the state the click would produce:
+
+![Hover hint](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/hover.jpg)
 
 
 ## Requirements
@@ -24,9 +34,10 @@ The column renders as a single clickable icon in the table cell (check-circle / 
 
 ```bash
 composer require asignua/filament-toggle-icon-column
+php artisan filament:assets
 ```
 
-The column is a plain class and needs no registration. Registering `ToggleIconColumnPlugin::make()` on a panel is optional and only
+`filament:assets` publishes the small stylesheet that colours the icons (`onColor()`, `offColor()`, `hoverColor()`). The column is a plain class and needs no registration. Registering `ToggleIconColumnPlugin::make()` on a panel is optional and only
 marks the plugin as installed.
 
 ## Usage
@@ -79,7 +90,7 @@ relationship column (`user.is_active`), and a pivot that has its own policy. Sem
 
 By default, hovering (or focusing) an enabled icon previews the state the click would produce: the opposite icon, dimmed.
 Turn it off with `->hoverHint(false)`; `->hoverColor('warning')` recolours the previewed icon. On a cell that cannot be clicked the
-state tooltip only reports the state. `->stateTooltip()` adds a translated tooltip ("Enabled. Click to disable.") when you set none.
+state tooltip only reports the state. `->stateTooltip()` adds a translated tooltip ("On. Click to turn off.") when you set none.
 
 ### Accessibility
 

@@ -17,6 +17,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Workbench\App\Filament\Resources\Products\ProductResource;
 use Workbench\App\Filament\Resources\Tasks\TaskResource;
 use Workbench\App\Filament\Resources\Users\UserResource;
 
@@ -28,8 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName('Acme Supply')
             ->login()
-            ->resources([TaskResource::class, UserResource::class])
+            ->resources([ProductResource::class, TaskResource::class, UserResource::class])
             ->plugin(ToggleIconColumnPlugin::make())
             ->middleware([
                 EncryptCookies::class,
