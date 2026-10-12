@@ -25,6 +25,6 @@ class SmokeTest extends TestCase
 
     public function test_the_translations_are_loaded(): void
     {
-        $this->assertSame('Enabled. Click to disable.', __('filament-toggle-icon-column::filament-toggle-icon-column.tooltip.on'));
+        $this->assertSame('On. Click to turn off.', __('filament-toggle-icon-column::filament-toggle-icon-column.tooltip.on'));
     }
 }

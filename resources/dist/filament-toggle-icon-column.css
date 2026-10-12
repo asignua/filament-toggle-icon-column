@@ -1,0 +1,22 @@
+/*
+ * ToggleIconColumn colours.
+ *
+ * Core only colours `.fi-ta-icon > .fi-icon.fi-color`; the icons of this column sit one level deeper
+ * (inside the clickable button), so the same rule is repeated here with Filament's own variables:
+ * `--text` / `--dark-text` come from the `fi-text-color-*` utilities (or the inline style of a custom colour).
+ */
+.fi-ta-toggle-icon .fi-icon {
+    color: var(--gray-400);
+}
+
+.fi-ta-toggle-icon .fi-icon.fi-color {
+    color: var(--text);
+}
+
+.dark .fi-ta-toggle-icon .fi-icon {
+    color: var(--gray-500);
+}
+
+.dark .fi-ta-toggle-icon .fi-icon.fi-color {
+    color: var(--dark-text);
+}

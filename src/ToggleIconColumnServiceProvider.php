@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Asignua\FilamentToggleIconColumn;
 
+use Filament\Support\Assets\Css;
+use Filament\Support\Facades\FilamentAsset;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -21,5 +23,13 @@ class ToggleIconColumnServiceProvider extends PackageServiceProvider
 
         // Add a config file only when the plugin really has options: create config/filament-toggle-icon-column.php and
         // chain `->hasConfigFile()` here (publish tag `filament-toggle-icon-column-config`). Prefer fluent setters on the Plugin.
+    }
+
+    public function packageBooted(): void
+    {
+        // Core colours `.fi-ta-icon > .fi-icon` only; this column nests its icons deeper, see the file.
+        FilamentAsset::register([
+            Css::make('filament-toggle-icon-column', __DIR__.'/../resources/dist/filament-toggle-icon-column.css'),
+        ], 'asignua/filament-toggle-icon-column');
     }
 }

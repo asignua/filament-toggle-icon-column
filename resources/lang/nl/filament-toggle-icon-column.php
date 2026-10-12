@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 return [
     'tooltip' => [
-        'on' => 'Ingeschakeld. Klik om uit te schakelen.',
-        'off' => 'Uitgeschakeld. Klik om in te schakelen.',
-        'on_readonly' => 'Ingeschakeld',
-        'off_readonly' => 'Uitgeschakeld',
+        'on' => 'Aan. Klik om uit te zetten.',
+        'off' => 'Uit. Klik om aan te zetten.',
+        'on_readonly' => 'Aan',
+        'off_readonly' => 'Uit',
     ],
 ];

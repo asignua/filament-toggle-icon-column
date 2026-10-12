@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 return [
     'tooltip' => [
-        'on' => 'Attivato. Fai clic per disattivare.',
-        'off' => 'Disattivato. Fai clic per attivare.',
-        'on_readonly' => 'Attivato',
-        'off_readonly' => 'Disattivato',
+        'on' => 'Attivo. Fai clic per disattivare.',
+        'off' => 'Non attivo. Fai clic per attivare.',
+        'on_readonly' => 'Attivo',
+        'off_readonly' => 'Non attivo',
     ],
 ];
