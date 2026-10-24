@@ -1,5 +1,7 @@
 # Filament Toggle Icon Column
 
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
+
 <img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/cover.jpg" alt="Filament Toggle Icon Column">
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-toggle-icon-column/tests.yml?branch=main&label=tests)](https://github.com/asignua/filament-toggle-icon-column/actions/workflows/tests.yml)
