@@ -2,6 +2,11 @@
 
 All notable changes to `asignua/filament-toggle-icon-column` are documented here.
 
+## 1.0.2 - 2026-10-25
+
+- Screenshots and the cover carry the «made in asign» mark; README shows the Stand With Ukraine badge.
+- Dependency updates (CI actions, dev tooling).
+
 ## 1.0.1 - 2026-10-12
 
 - Fix: `onColor()`, `offColor()` and `hoverColor()` had no visible effect (icons rendered grey). Core paints only `.fi-ta-icon > .fi-icon.fi-color`; the plugin now ships a small stylesheet that applies Filament's `--text` / `--dark-text` colour variables to its own markup, in light and dark mode. Run `php artisan filament:assets` after updating.

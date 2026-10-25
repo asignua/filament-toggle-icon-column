@@ -2,7 +2,7 @@
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
 
-<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/cover.jpg" alt="Filament Toggle Icon Column">
+<img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/cover.jpg" alt="Filament Toggle Icon Column">
 
 [![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-toggle-icon-column/tests.yml?branch=main&label=tests)](https://github.com/asignua/filament-toggle-icon-column/actions/workflows/tests.yml)
 
@@ -17,13 +17,13 @@ and, unlike the core editable columns, a model-policy check.
 
 The column renders as a single clickable icon in the table cell (check-circle / x-circle by default), in light and dark mode:
 
-![List](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/list.jpg)
+![List](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/list.jpg)
 
-![List, dark mode](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/list-dark.jpg)
+![List, dark mode](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/list-dark.jpg)
 
 Hovering an enabled icon previews the state the click would produce:
 
-![Hover hint](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.1/art/hover.jpg)
+![Hover hint](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/hover.jpg)
 
 
 ## Requirements
