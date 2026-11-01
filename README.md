@@ -137,6 +137,15 @@ vendor/bin/pint --test
 
 See [CHANGELOG.md](CHANGELOG.md).
 
+## More plugins by asign
+
+- [Rating](https://filamentphp.com/plugins/asign-rating) — star rating column, input and entry
+- [Themes](https://filamentphp.com/plugins/asign-themes) — per-user and per-panel colour themes
+- [Row Layout](https://filamentphp.com/plugins/asign-row-layout) — column manager for tables
+- [Record Lock](https://filamentphp.com/plugins/asign-record-lock) — stop two people editing the same record
+
+All plugins: <https://filamentphp.com/plugins?q=asign>
+
 ## License
 
 The MIT License (MIT). See [LICENSE.md](LICENSE.md).
