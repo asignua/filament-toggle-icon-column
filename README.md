@@ -1,10 +1,13 @@
 # Filament Toggle Icon Column
 
 [![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://stand-with-ukraine.pp.ua)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/asignua/filament-toggle-icon-column.svg?style=flat-square)](https://packagist.org/packages/asignua/filament-toggle-icon-column)
+[![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-toggle-icon-column/tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/asignua/filament-toggle-icon-column/actions/workflows/tests.yml)
+[![Total Downloads](https://img.shields.io/packagist/dt/asignua/filament-toggle-icon-column.svg?style=flat-square)](https://packagist.org/packages/asignua/filament-toggle-icon-column)
+[![License](https://img.shields.io/packagist/l/asignua/filament-toggle-icon-column.svg?style=flat-square)](https://github.com/asignua/filament-toggle-icon-column/blob/main/LICENSE.md)
+[![Plumb score](https://plumbphp.dev/badges/asignua/filament-toggle-icon-column/composite.svg)](https://plumbphp.dev/asignua/filament-toggle-icon-column)
 
 <img class="filament-hidden" src="https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/cover.jpg" alt="Filament Toggle Icon Column">
-
-[![Tests](https://img.shields.io/github/actions/workflow/status/asignua/filament-toggle-icon-column/tests.yml?branch=main&label=tests)](https://github.com/asignua/filament-toggle-icon-column/actions/workflows/tests.yml)
 
 A table column that is an icon you click: it flips a boolean attribute in place, with no switch and no page reload. The Filament 5
 successor of `archilex/filament-toggle-icon-column` (which stopped at Filament 3).
@@ -24,7 +27,6 @@ The column renders as a single clickable icon in the table cell (check-circle / 
 Hovering an enabled icon previews the state the click would produce:
 
 ![Hover hint](https://raw.githubusercontent.com/asignua/filament-toggle-icon-column/v1.0.2/art/hover.jpg)
-
 
 ## Requirements
 
@@ -145,6 +147,8 @@ See [CHANGELOG.md](CHANGELOG.md).
 - [Record Lock](https://filamentphp.com/plugins/asign-record-lock) — stop two people editing the same record
 
 All plugins: <https://filamentphp.com/plugins?q=asign>
+
+Catalogue of free and commercial plugins: <https://asign.tech/en/plugins>
 
 ## License
 
